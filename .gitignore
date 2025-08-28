@@ -1,0 +1,18 @@
+# Python cache / compiled files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+
+# Environment variables
+.env
+
+# Pytest cache
+.pytest_cache/
+
+# Alembic migration cache
+migrations/versions/__pycache__/
+
+# macOS specific
+.DS_Store
