@@ -1,5 +1,7 @@
 from flask import Flask
 from .core.config import Config
+from .db import db
+from sqlalchemy import text
 
 def create_app(config_class: type = Config) -> Flask:
     app = Flask(__name__)
@@ -7,8 +9,11 @@ def create_app(config_class: type = Config) -> Flask:
     app.config.setdefault("SESSION_COOKIE_HTTPONLY", True)
     app.config.setdefault("SESSION_COOKIE_SAMESITE", "Lax")
 
+    db.init_app(app) 
+
     from .auth.routes import bp as auth_bp
     from .messages.routes import bp as messages_bp
+    from .db import models  # noqa: F401
 
     app.register_blueprint(auth_bp, url_prefix = "/auth")
     app.register_blueprint(messages_bp, url_prefix = "/messages")
@@ -16,5 +21,10 @@ def create_app(config_class: type = Config) -> Flask:
     @app.get("/health")
     def health():
         return {"status": "ok"}, 200
+    
+    @app.get("/health/db")
+    def health_db():
+        db.session.execute(text("SELECT 1"))
+        return {"db": "ok"}, 200
     
     return app
