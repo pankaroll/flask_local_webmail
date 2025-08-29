@@ -11,6 +11,7 @@ class Config:
 
     MAIL_DOMAIN = os.getenv("MAIL_DOMAIN", "mailo.local")
 
+
 class TestConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
