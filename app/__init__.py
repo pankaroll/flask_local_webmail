@@ -14,7 +14,7 @@ def create_app(config_class: type = Config) -> Flask:
 
     from .auth.routes import bp as auth_bp
     from .messages.routes import bp as messages_bp
-    from .db import models
+    from .db import models # noqa: F401
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(messages_bp, url_prefix="/messages")
