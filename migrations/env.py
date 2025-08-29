@@ -1,9 +1,7 @@
-# migrations/env.py
 from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-# ⬇️ importy z Twojej aplikacji
 from app import create_app
 from app.db import db
 
@@ -12,7 +10,6 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Alembic będzie widział modele przez metadata
 target_metadata = db.metadata
 
 def get_url() -> str:
@@ -33,7 +30,7 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     configuration = config.get_section(config.config_ini_section) or {}
-    configuration["sqlalchemy.url"] = get_url()   # ⬅️ KLUCZOWE
+    configuration["sqlalchemy.url"] = get_url()
 
     connectable = engine_from_config(
         configuration,
