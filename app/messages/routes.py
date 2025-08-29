@@ -8,6 +8,7 @@ from ..db.models import User, Message
 
 bp = Blueprint("messages", __name__)
 
+
 def serialize_message(m: Message, me_id: int | None = None) -> dict:
     return {
         "id": m.id,
@@ -19,6 +20,7 @@ def serialize_message(m: Message, me_id: int | None = None) -> dict:
         "read_at": m.read_at.isoformat() if m.read_at else None,
         "is_mine": m.sender_id == me_id,
     }
+
 
 @bp.post("/")
 @login_required
@@ -47,33 +49,50 @@ def send_message():
     db.session.commit()
     return {"id": m.id}, 201
 
+
 @bp.get("/inbox")
 @login_required
 def inbox():
     q = (
         select(Message)
-        .where(Message.recipient_id == g.current_user.id, Message.is_deleted_by_recipient.is_(False))
+        .where(
+            Message.recipient_id == g.current_user.id,
+            Message.is_deleted_by_recipient.is_(False),
+        )
         .order_by(desc(Message.created_at))
     )
-    items = [serialize_message(m, me_id=g.current_user.id) for m in db.session.scalars(q).all()]
+    items = [
+        serialize_message(m, me_id=g.current_user.id)
+        for m in db.session.scalars(q).all()
+    ]
     return {"items": items, "folder": "inbox"}, 200
+
 
 @bp.get("/sent")
 @login_required
 def sent():
     q = (
         select(Message)
-        .where(Message.sender_id == g.current_user.id, Message.is_deleted_by_sender.is_(False))
+        .where(
+            Message.sender_id == g.current_user.id,
+            Message.is_deleted_by_sender.is_(False),
+        )
         .order_by(desc(Message.created_at))
     )
-    items = [serialize_message(m, me_id=g.current_user.id) for m in db.session.scalars(q).all()]
+    items = [
+        serialize_message(m, me_id=g.current_user.id)
+        for m in db.session.scalars(q).all()
+    ]
     return {"items": items, "folder": "sent"}, 200
+
 
 @bp.get("/<int:message_id>")
 @login_required
 def get_message(message_id: int):
     m = db.session.get(Message, message_id)
-    if not m or (m.sender_id != g.current_user.id and m.recipient_id != g.current_user.id):
+    if not m or (
+        m.sender_id != g.current_user.id and m.recipient_id != g.current_user.id
+    ):
         return {"error": "not found"}, 404
     if m.sender_id == g.current_user.id and m.is_deleted_by_sender:
         return {"error": "not found"}, 404
@@ -86,6 +105,7 @@ def get_message(message_id: int):
 
     return serialize_message(m, me_id=g.current_user.id), 200
 
+
 @bp.post("/<int:message_id>/read")
 @login_required
 def mark_read(message_id: int):
@@ -97,11 +117,14 @@ def mark_read(message_id: int):
         db.session.commit()
     return {"id": m.id, "read_at": m.read_at.isoformat()}, 200
 
+
 @bp.delete("/<int:message_id>")
 @login_required
 def delete_message(message_id: int):
     m = db.session.get(Message, message_id)
-    if not m or (m.sender_id != g.current_user.id and m.recipient_id != g.current_user.id):
+    if not m or (
+        m.sender_id != g.current_user.id and m.recipient_id != g.current_user.id
+    ):
         return {"error": "not found"}, 404
 
     changed = False

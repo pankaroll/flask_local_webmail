@@ -12,9 +12,11 @@ if config.config_file_name is not None:
 
 target_metadata = db.metadata
 
+
 def get_url() -> str:
     app = create_app()
     return app.config["SQLALCHEMY_DATABASE_URI"]
+
 
 def run_migrations_offline() -> None:
     url = get_url()
@@ -27,6 +29,7 @@ def run_migrations_offline() -> None:
     )
     with context.begin_transaction():
         context.run_migrations()
+
 
 def run_migrations_online() -> None:
     configuration = config.get_section(config.config_ini_section) or {}
@@ -47,6 +50,7 @@ def run_migrations_online() -> None:
         )
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()
