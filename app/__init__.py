@@ -27,10 +27,11 @@ def create_app(config_class: type = Config) -> Flask:
     def health_db():
         db.session.execute(text("SELECT 1"))
         return {"db": "ok"}, 200
-    
+
     @app.route("/debug/tables")
     def list_tables():
         inspector = inspect(db.engine)
         tables = inspector.get_table_names()
         return jsonify(tables)
+
     return app
